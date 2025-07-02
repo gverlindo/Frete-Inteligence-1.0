@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VERLAZ Frete Intelligence 1.0</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        }
+        .card-shadow {
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        .result-card {
+            background: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%);
+            border: 1px solid #cbd5e1;
+        }
+        .loading {
+            display: none;
+        }
+        .loading.active {
+            display: block;
+        }
+        .result-section {
+            display: none;
+        }
+        .result-section.active {
+            display: block;
+        }
+        .conditional-fields {
+            transition: all 0.3s ease-in-out;
+        }
+        .conditional-fields.show {
+            display: block !important;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="min-h-screen gradient-bg">
+    <div class="container mx-auto px-4 py-8">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-gray-900 mb-2">
+                <i class="fas fa-ship text-gray-700 mr-3"></i>
+                VERLAZ Frete Intelligence 1.0
+            </h1>
+            <p class="text-xl text-gray-600">
+                Custos Estimados de Fretes de Importação (Brasil)
+            </p>
+        </div>
+
+        <!-- Formulário Centralizado -->
+        <div class="max-w-2xl mx-auto">
+            <div class="bg-white rounded-xl card-shadow p-8 mb-8">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">
+                    <i class="fas fa-calculator text-gray-600 mr-2"></i>
+                    Calcular Frete
+                </h2>
+                    
+                    <form id="freteForm" class="space-y-6">
+                        <!-- País de Origem -->
+                        <div>
+                            <label for="country" class="block text-sm font-medium text-gray-700 mb-2">
+                                <i class="fas fa-globe text-gray-500 mr-1"></i>
+                                País de Origem
+                            </label>
+                            <select id="country" name="country" required 
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-transparent transition-all">
+                                <option value="">Selecione o país...</option>
+                                <option value="china">China</option>
+                                <option value="usa">Estados Unidos</option>
+                                <option value="germany">Alemanha</option>
+                                <option value="japan">Japão</option>
+                                <option value="south_korea">Coreia do Sul</option>
+                                <option value="italy">Itália</option>
+                                <option value="france">França</option>
+                                <option value="uk">Reino Unido</option>
+                                <option value="spain">Espanha</option>
+                                <option value="netherlands">Holanda</option>
+                                <option value="india">Índia</option>
+                                <option value="mexico">México</option>
+                                <option value="canada">Canadá</option>
+                                <option value="argentina">Argentina</option>
+                                <option value="chile">Chile</option>
+                            </select>
+                        </div>
+
+                        <!-- Modalidade -->
+                        <div>
+                            <label for="modality" class="block text-sm font-medium text-gray-700 mb-2">
+                                <i class="fas fa-truck text-gray-500 mr-1"></i>
+                                Modalidade de Transporte
+                            </label>
+                            <select id="modality" name="modality" required 
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-transparent transition-all">
+                                <option value="">Selecione a modalidade...</option>
+                                <option value="aereo">Aéreo</option>
+                                <option value="maritimo">Marítimo</option>
+                            </select>
+                        </div>
+
+                        <!-- Campos condicionais para modalidade aérea -->
+                        <div id="aereoFields" class="conditional-fields" style="display: none;">
+                            <!-- NCM do Produto -->
+                            <div>
+                                <label for="ncm" class="block text-sm font-medium text-gray-700 mb-2">
+                                    <i class="fas fa-barcode text-gray-500 mr-1"></i>
+                                    NCM do Produto
+                                </label>
+                                <input type="text" id="ncm" name="ncm" placeholder="Ex: 8471.30.12"
+                                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-transparent transition-all">
+                            </div>
+
+                            <!-- Peso Estimado -->
+                            <div>
+                                <label for="weight" class="block text-sm font-medium text-gray-700 mb-2">
+                                    <i class="fas fa-weight text-gray-500 mr-1"></i>
+                                    Peso Estimado (kg)
+                                </label>
+                                <input type="number" id="weight" name="weight" min="1" step="0.1" value="100"
+                                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-transparent transition-all">
+                            </div>
+                        </div>
+
+                        <!-- Botões -->
+                        <div class="flex space-x-4">
+                            <button type="submit" 
+                                    class="flex-1 bg-gray-800 hover:bg-gray-900 text-white font-bold py-3 px-6 rounded-lg transition-all transform hover:scale-105">
+                                <i class="fas fa-calculator mr-2"></i>
+                                Calcular Frete
+                            </button>
+                            <button type="button" id="resetBtn"
+                                    class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-3 px-6 rounded-lg transition-all">
+                                <i class="fas fa-redo mr-2"></i>
+                                Limpar
+                            </button>
+                        </div>
+                    </form>
+
+                    <!-- Loading -->
+                    <div id="loading" class="loading text-center py-8">
+                        <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-gray-600"></div>
+                        <p class="mt-2 text-gray-600">Consultando Empresas de Frete e Agentes de Cargas Internacionais.</p>
+                    </div>
+                </div>
+
+                <!-- Resultado -->
+                <div id="resultCard" class="result-section bg-white rounded-xl card-shadow p-6">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">
+                        <i class="fas fa-chart-line text-gray-600 mr-2"></i>
+                        Resultado do Cálculo
+                    </h2>
+                    
+                    <div id="resultContent" class="space-y-4">
+                        <!-- Conteúdo será preenchido via JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Gráfico de Flutuação -->
+        <div id="chartSection" class="result-section max-w-4xl mx-auto mt-8">
+            <div class="result-card rounded-lg shadow-lg p-6">
+                <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                    <i class="fas fa-chart-line text-gray-500 mr-2"></i>
+                    Flutuação de Custos - Últimos 3 Meses
+                </h2>
+                <div class="bg-white p-4 rounded-lg">
+                    <canvas id="fluctuationChart" width="400" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
+
